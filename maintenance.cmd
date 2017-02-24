@@ -1,7 +1,7 @@
 @ECHO OFF 
 ::
 ::   Name: maintenance.cmd
-::   Author: Nigel Allen Open Edge Solutions
+::   Author: White Star Software
 ::   Date: 25 January 2017
 ::
 ::   Purpose: Create an outage on the ProTop Dashboard
@@ -31,7 +31,10 @@ CALL %ENVPT3%\bin\protopenv.bat
 
 :: VARIABLES
 
-SET EKKO=echo
+:: Unset this for normal use
+:: SET EKKO=echo
+SET EKKO=
+
 SET AND=IF
 SET MLOG="%LOGDIR%\maintenance.log"
 SET MFLAG="%TMPDIR%\MAINTENANCE"
@@ -110,7 +113,6 @@ IF "%ACTION%"=="on" (
    >>"%MLOG%" echo curl -X POST --data !QSTR! %PTHOST%/cgi-bin/pt3admin.cgi 2>&1
    >>"%MLOG%" %EKKO% curl -X POST --data !QSTR! %PTHOST%/cgi-bin/pt3admin.cgi 2>&1
 
-   GOTO :END
 )
 
 IF "%ACTION%"=="off" (
@@ -122,7 +124,7 @@ IF "%ACTION%"=="off" (
 
    ECHO Ending Maintenance Mode, restarting protop agents
 
-   DEL "%MFLAG%" >>%MLOG%
+   %EKKO% DEL "%MFLAG%" >>%MLOG%
 
 
    IF EXIST "%MFLAG%" (
@@ -143,13 +145,12 @@ IF "%ACTION%"=="off" (
 IF "%ACTION%"=="status" (
  
    IF EXIST "%MFLAG%" (
-      SET /P TMP=<%MFLAG%
+      SET /P TMP=<"%MFLAG%"
       echo Maintenance Mode has been on since !TMP!
       GOTO :END
    )
 
    echo Maintenance Mode is OFF
-   GOTO :END
 )
 
 GOTO :END
